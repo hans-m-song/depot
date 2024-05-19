@@ -1,0 +1,41 @@
+package view
+
+import (
+	"github.com/hans-m-song/depot/pkg/db"
+)
+
+templ RelationshipsPage() {
+	<div class={ "vstack", "gap-3" ,"p-3" }>
+		@RelationshipForm("create")
+		<div hx-trigger="load" hx-get="/entities/items"></div>
+	</div>
+}
+
+templ RelationshipForm(action string) {
+	<form></form>
+}
+
+templ RelationshipsTable(relationships []db.ListRelationshipsRow) {
+	<table class={ "table", "table-striped" }>
+		<thead>
+			<tr>
+				<th>Source Name</th>
+				<th>Source Type</th>
+				<th>Relationship</th>
+				<th>Target Name</th>
+				<th>Target Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, r := range relationships {
+				<tr>
+					<td>{ r.SourceEntityName }</td>
+					<td>{ r.SourceEntityTypeName }</td>
+					<td>{ r.RelationshipTypeName }</td>
+					<td>{ r.TargetEntityName }</td>
+					<td>{ r.TargetEntityTypeName }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

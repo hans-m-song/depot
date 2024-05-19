@@ -1,0 +1,76 @@
+package view
+
+import "fmt"
+import "github.com/hans-m-song/depot/pkg/db"
+
+templ EntityPage(entityID int64) {
+	<div class={ "vstack", "gap-3", "p-3" }>
+		// details
+		<div class={ "card", "p-3" }>
+			<div hx-trigger="load" hx-get={ fmt.Sprintf("/hx/entities/%d", entityID) }></div>
+		</div>
+		// attributes
+		<div class={ "card", "p-3" }>
+			<div hx-trigger="load" hx-get={ fmt.Sprintf("/hx/entities/%d/attributes", entityID) }></div>
+		</div>
+		// children
+		<div class={ "card", "p-3" }>
+			<div hx-trigger="load" hx-get={ fmt.Sprintf("/hx/entities/%d/children", entityID) }></div>
+		</div>
+	</div>
+}
+
+templ Entity(entity db.GetEntityByIDRow) {
+	<div class={ "hstack", "gap-1" }>
+		@EntityTypeIcon(entity.EntityTypeName)
+		<span>{ entity.EntityName }</span>
+	</div>
+}
+
+templ EntityAttributes(entityID int64, attributes []db.ListAttributesByEntityIDRow) {
+	<table>
+		<thead>
+			<tr>
+				<th colspan="2">Attributes</th>
+				<th>
+					// actions
+					<button class={ "btn", "btn-sm", "p-0" }>
+						<i class="bi bi-plus-circle"></i>
+					</button>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, a := range attributes {
+				<tr>
+					<td>{ a.AttributeTypeName }</td>
+					<td>{ a.AttributeValue }</td>
+					<td>
+						@AsyncButton("delete", fmt.Sprintf("/hx/entities/%d/attributes/%d", entityID, a.AttributeID), "")
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+templ EntityChildrenRelationshipsTable(relationships []db.ListChildrenEntitiesRow) {
+	<table class={ "table", "table-striped" }>
+		<thead>
+			<tr>
+				<th>Relationship</th>
+				<th>Name</th>
+				<th>Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, r := range relationships {
+				<tr>
+					<td>{ r.RelationshipTypeName }</td>
+					<td>{ r.EntityName }</td>
+					<td>{ r.EntityTypeName }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

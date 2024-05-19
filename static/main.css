@@ -1,0 +1,16 @@
+.btn {
+  text-transform: capitalize;
+}
+
+.async-indicator-swapin {
+  display: none;
+}
+
+.htmx-request .async-indicator-swapin {
+  display: block;
+}
+
+.htmx-request .async-indicator-swapout {
+  display: none;
+  pointer-events: none;
+}

@@ -1,0 +1,101 @@
+package view
+
+import (
+	"fmt"
+	"github.com/hans-m-song/depot/pkg/db"
+)
+
+templ EntitiesPage() {
+	<div class={ "vstack", "gap-3" ,"p-3" }>
+		@EntityForm("create")
+		<div hx-trigger="load," hx-get="/hx/entities"></div>
+	</div>
+}
+
+templ EntityForm(action string) {
+	<form hx-post="/hx/entities" class={ "hstack", "gap-3", "d-flex" }>
+		<div class={ "form-floating", "flex-grow-1" }>
+			<input
+				id="EntityForm-name"
+				name="entity_name"
+				placeholder="Entity name"
+				type="text"
+				class={ "form-control" }
+			/>
+			<label for="EntityForm-name">Entity name</label>
+		</div>
+		<div class={ "form-floating" }>
+			<select
+				id="EntityForm-type"
+				name="entity_type_id"
+				placeholder="Entity type"
+				class={ "form-select" }
+			>
+				for _, t := range db.EntityTypes {
+					<option value={ fmt.Sprint(t.EntityTypeID) }>{ t.EntityTypeName }</option>
+				}
+			</select>
+			<label for="EntityForm-type">Entity type</label>
+		</div>
+		<div>
+			<button class={ "btn", "btn-primary" } type="submit">{ action }</button>
+		</div>
+	</form>
+}
+
+templ EntityTypeIcon(entityType string) {
+	switch entityType {
+		case "APPLICATION":
+			<i class="bi bi-window"></i>
+		case "TEAM":
+			<i class="bi bi-people"></i>
+		case "USER":
+			<i class="bi bi-person"></i>
+		default:
+			<i class="bi bi-question-circle"></i>
+	}
+}
+
+templ EntitiesTable(entities []db.ListEntitiesRow, limit, offset int64) {
+	<div
+		id={ "entities-table" }
+		hx-get="/hx/entities"
+		hx-trigger={ fmt.Sprintf("%s %s", EntitiesAppEvent, "from:body") }
+	>
+		<table
+			class={ "table", "table-striped" }
+		>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Type</th>
+					<th>
+						// actions
+						// <i class="bi bi-gear"></i>
+					</th>
+				</tr>
+			</thead>
+			<tbody hx-target="closest tr">
+				for _, e := range entities {
+					<tr>
+						<td>
+							@Link(fmt.Sprintf("/entities/%d", e.EntityID), e.EntityName)
+						</td>
+						<td>
+							<div class={ "hstack", "gap-1" }>
+								@EntityTypeIcon(e.EntityTypeName)
+								<span class={ "ms-1", }>{ e.EntityTypeName } </span>
+							</div>
+						</td>
+						<td>
+							<div class={ "hstack", "gap-1" }>
+								@AsyncButton("delete", fmt.Sprintf("/hx/entities/%d", e.EntityID), "")
+							</div>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+		@Pagination("/hx/entities", "#entities-table", int64(len(entities)), limit, offset)
+	</div>
+}

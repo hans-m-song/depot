@@ -1,0 +1,13 @@
+package view
+
+script reload() {
+	window?.location?.reload?.();
+}
+
+templ ErrorMessage(err error) {
+	<div class={ "vstack", "gap-3" }>
+		<h5>An error occurred</h5>
+		<p>{ err.Error() }</p>
+		<button class={ "btn", "btn-primary" } onclick={ reload() }>Reload</button>
+	</div>
+}

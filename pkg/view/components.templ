@@ -1,0 +1,75 @@
+package view
+
+import (
+	"fmt"
+)
+
+templ Link(href, text string) {
+	<a class={ "icon-link", "icon-link-hover", "align-items-baseline" } href={ templ.SafeURL(href) }>
+		{ text }
+		<i class="bi bi-arrow-right"></i>
+	</a>
+}
+
+templ AsyncButton(action string, href string, text string) {
+	<button
+		class={ "btn", "btn-sm", "p-0" }
+		{ templ.Attributes{fmt.Sprintf("hx-%s", action): href}... }
+	>
+		<i class={ "async-indicator-swapout", "bi", "bi-trash" }></i>
+		<div class={ "async-indicator-swapin", "spinner-border", "spinner-border-sm" } role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	</button>
+}
+
+css pagination() {
+	line-height: 30px;
+}
+
+templ Pagination(path, target string, count, limit, offset int64) {
+	<nav
+		aria-label="Pagination"
+		hx-target={ target }
+		data-pagination-count={ fmt.Sprint(count) }
+		data-pagination-limit={ fmt.Sprint(limit) }
+		data-pagination-offset={ fmt.Sprint(offset) }
+	>
+		<ul class={ "pagination" , "justify-content-center" }>
+			<li class={ "page-item", templ.KV("disabled", offset < 1) }>
+				<a
+					hx-get={ fmt.Sprintf("%s?limit=%d&offset=%d", path, limit, offset-limit) }
+					class={ "page-link" }
+					href="#"
+					aria-label="Previous"
+				>
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+			if offset > 0 {
+				for i := 0; int64(i) < offset / limit; i++ {
+					<li class={ "page-item" }>
+						<a
+							hx-get={ fmt.Sprintf("%s?limit=%d&offset=%d", path, limit, int64(i)*limit) }
+							class={ "page-link" }
+							href="#"
+							aria-label="Next"
+						>
+							{ fmt.Sprint(i + 1) }
+						</a>
+					</li>
+				}
+			}
+			<li class={ "page-item", templ.KV("disabled", count < limit) }>
+				<a
+					hx-get={ fmt.Sprintf("%s?limit=%d&offset=%d", path, limit, offset+limit) }
+					class={ "page-link" }
+					href="#"
+					aria-label="Next"
+				>
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+}
